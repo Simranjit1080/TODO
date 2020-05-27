@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="TODO.css" />
+    <script>
+      window.onload = () => {
+        var list = document.getElementById("list");
+        class TodoItemModel {
+          constructor(caption, isComplete) {
+            this.caption = caption;
+            this.isComplete = isComplete;
+          }
+          toggle() {
+            this.isComplete = !this.isComplete;
+          }
+        }
+        class AppViewModel {
+          constructor() {
+            this.todoCollection = [];
+            this.filterType = "all";
+          }
+          addTodoItem(todoItem) {
+            this.todoCollection.push(todoItem);
+          }
+          render() {
+            document.getElementById("list").innerHTML = "";
+            var self = this;
+            for (var i in this.todoCollection) {
+              var li = document.createElement("li");
+              let check = document.createElement("input");
+              check.setAttribute("type", "checkbox");
+              check.setAttribute("class", "check");
+              check.addEventListener(
+                "click",
+                function (index) {
+                  self.todoCollection[index].toggle();
+                  self.render();
+                }.bind(null, i)
+              );
+              let text = document.createTextNode(
+                this.todoCollection[i].caption
+              );
+              let h1 = document.createElement("span");
+              h1.setAttribute("class", "task");
+              h1.appendChild(text);
+              if (self.todoCollection[i].isComplete) {
+                h1.style.textDecoration = "line-through";
+                check.setAttribute("checked", "checked");
+              }
+              var del = document.createElement("button");
+              del.innerHTML = "Delete";
+              del.setAttribute("class", "del");
+              del.addEventListener(
+                "click",
+                function (index) {
+                  self.todoCollection.splice(index, 1);
+                  self.render();
+                }.bind(null, i)
+              );
+              li.appendChild(check);
+              li.appendChild(h1);
+              li.appendChild(del);
+              if (self.filterType === "all") {
+                list.appendChild(li);
+              } else if (
+                self.filterType === "active" &&
+                !self.todoCollection[i].isComplete
+              ) {
+                list.appendChild(li);
+              } else if (
+                self.filterType === "comp" &&
+                self.todoCollection[i].isComplete
+              ) {
+                list.appendChild(li);
+              }
+            }
+          }
+        }
+        var app = new AppViewModel();
+        document.getElementById("text").addEventListener("keypress", (e) => {
+          if (e.keyCode == 13) {
+            var text = document.getElementById("text").value;
+            if (text == "") {
+              alert("Cannot enter empty task!");
+            } else {
+              var todoItem = new TodoItemModel(text, false);
+              app.addTodoItem(todoItem);
+              app.render();
+              e.target.value = "";
+            }
+          }
+        });
+        var all = document.getElementById("all");
+        var active = document.getElementById("active");
+        var comp = document.getElementById("comp");
+        all.addEventListener("click", function (e) {
+          app.filterType = "all";
+          e.target.style.backgroundColor = "dodgerblue";
+          active.style.backgroundColor = "rgba(255, 255, 255, 0.521)";
+          comp.style.background = "rgba(255, 255, 255, 0.521)";
+          app.render();
+        });
+
+        active.addEventListener("click", function (e) {
+          app.filterType = "active";
+          e.target.style.backgroundColor = "dodgerblue";
+          comp.style.backgroundColor = "rgba(255, 255, 255, 0.521)";
+          all.style.background = "rgba(255, 255, 255, 0.521)";
+          app.render();
+        });
+        comp.addEventListener("click", function (e) {
+          app.filterType = "comp";
+          e.target.style.backgroundColor = "dodgerblue";
+          active.style.backgroundColor = "rgba(255, 255, 255, 0.521)";
+          all.style.background = "rgba(255, 255, 255, 0.521)";
+          app.render();
+        });
+      };
+    </script>
+  </head>
+  <body>
+    <div id="main">
+      <h1 style="font-family: Arial, Helvetica, sans-serif;">
+        TODOs
+      </h1>
+      <input
+        type="text"
+        name="text"
+        id="text"
+        placeholder="What needs to be done?"
+      />
+      <ul id="list"></ul>
+      <center>
+        <button
+          id="all"
+          class="del"
+          style="
+            background-color: rgba(255, 255, 255, 0.521);
+            margin-right: 10px;
+            float: none;
+          "
+        >
+          All</button
+        ><button
+          id="active"
+          class="del"
+          style="background-color: rgba(255, 255, 255, 0.521); float: none;"
+        >
+          active</button
+        ><button
+          id="comp"
+          class="del"
+          style="
+            background-color: rgba(255, 255, 255, 0.521);
+            margin-left: 10px;
+            float: none;
+          "
+        >
+          completed
+        </button>
+      </center>
+    </div>
+  </body>
+</html>
